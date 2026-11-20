@@ -44,7 +44,7 @@ runs:
         dir="$(haxelib libpath hxcpp)"
         git -C "$dir" checkout -q 615adc73d5ef28f3f74ea47977c39c4f25ce256d
         (cd "$dir/tools/hxcpp" && haxe compile.hxml)
-    - if: inputs.runtime == 'native' && runner.os == 'Linux'
+    - if: inputs.runtime == 'native' && runner.os == 'Linux' && runner.arch != 'ARM64'
       shell: bash
       run: |
         git clone --depth 1 --branch 1.15 https://github.com/HaxeFoundation/hashlink "$RUNNER_TEMP/hashlink"

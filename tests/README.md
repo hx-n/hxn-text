@@ -72,3 +72,7 @@ from a published archive even with the same Rust compiler version. For local
 checks, `--assets-package` and `--file-package` select matching prebuilt dependency
 SDKs; they do not build dependencies. CI uses published dependencies and the
 shared Linux producer, with no overrides.
+
+Installed Linux ARM64 consumers run Ash in hybrid, JIT and interpreter modes,
+hxcpp and CPPIA. Stock HashLink 1.15 does not support an ARM64 VM. Its native
+consumer check runs on Linux x86-64 and Windows instead.
