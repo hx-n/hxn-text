@@ -20,6 +20,14 @@ function. Haxe imports remain under `hxn.text`. Keep this macro in generated
 source builds and published extraParams.hxml, and test CPPIA hosts and scripts.
 The init macro carries no application workflow or rendering behavior.
 
+Asset integration stays in the Haxe FontAssets helper and uses hxn-assets'
+AssetLoader and typed dynamic decoder metadata. Haxelib selection enables
+FontAssets with the normal hxn_assets define; keep text-only CPPIA hosts usable
+when assets are not selected. Do not duplicate transport,
+catalogs, hashes or byte caches in the text core. Keep native font ownership
+explicit when clearing generated asset fields. Exercise source/digest/decoder
+failures and collection/weight selection before and after async delivery.
+
 Use the installed hxn command, Haxe and the selected runtime in examples.
 Test-only hosts, fixtures and runners belong under tests, outside published
 application tooling. Validate direct `haxe -lib hxn-text` consumers as well as

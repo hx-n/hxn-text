@@ -19,8 +19,10 @@ def main():
     parser.add_argument("--cli", default="hxn")
     parser.add_argument("--ash", default="ash")
     parser.add_argument("--hxn", type=Path, default=ROOT.parent/"hxn")
+    parser.add_argument("--assets-source", type=Path, help="Run the annotated font-asset fixture with this hxn-assets repository")
     args=parser.parse_args()
     ios=args.platform=="ios-sim"
+    main_class="FontAssetsCheck" if args.assets_source else "Main"
     triple=("aarch64-apple-ios-sim" if args.runtime=="hl" else "x86_64-apple-ios") if ios else "aarch64-linux-android"
     work=ROOT/"target/mobile"/(args.platform+"-"+args.runtime)
     work.mkdir(parents=True,exist_ok=True)
@@ -44,10 +46,12 @@ def main():
     out=work/"out";out.mkdir(exist_ok=True)
     nonce=uuid.uuid4().hex
     (work/"nonce.txt").write_text(nonce)
-    flags=["haxe","-cp",args.hxn/"haxe","-cp",package,package/"extraParams.hxml","-cp",ROOT/"examples/check","-main","Main","-D","hxn_triple="+triple,"-resource",str(work/"nonce.txt")+"@hxn-text-test-nonce"]
+    flags=["haxe","-cp",args.hxn/"haxe","-cp",package,package/"extraParams.hxml","-cp",ROOT/"examples/check","-main",main_class,"-D","hxn_triple="+triple,"-resource",str(work/"nonce.txt")+"@hxn-text-test-nonce"]
     for name,file in [("latin","NotoSans-Regular.ttf"),("arabic","arabic.ttf"),("devanagari","devanagari.ttf")]:
         flags += ["-resource",str(ROOT/"tests/fixtures"/file)+"@"+name]
-    frameworks=["-framework","CoreText","-framework","CoreGraphics","-framework","CoreFoundation","-liconv","-lobjc"]
+    if args.assets_source:
+        flags += ["-D","hxn_assets","-cp",args.assets_source.resolve()/"packages/hxn-assets/src","-lib","format:3.8.0","-cp",ROOT/"examples/assets","-cp",ROOT/"tests/assets","-D","hxn_assets_dir="+str(ROOT/"tests/fixtures")]
+    frameworks=["-framework","CoreText","-framework","CoreGraphics","-framework","CoreFoundation","-framework","QuartzCore","-liconv","-lobjc"]
     if args.runtime=="hl":
         run([*flags,"-hl",out/"main.hl"])
         extra={"ASH_LINK_ARGS":" ".join(frameworks)} if ios else {"ASH_LINK_ARGS":"--target=aarch64-linux-android26"}
@@ -66,10 +70,10 @@ def main():
             defines=["-D","android","-D","HXCPP_ARM64","-D","HXCPP_DEBUG_LINK","-D","ANDROID_HOST=darwin-x86_64","-D","HXCPP_ANDROID_PLATFORM=26"]
         run([*flags,"-cpp",out,*defines])
         if ios:
-            libraries=list(out.glob("libMain*.a"));assert len(libraries)==1,libraries
+            libraries=list(out.glob("lib"+main_class+"*.a"));assert len(libraries)==1,libraries
             run(["xcrun","--sdk","iphonesimulator","clang++","-arch","x86_64","-mios-simulator-version-min=12.0",ROOT/"tests/mobile/main.cpp",libraries[0],*frameworks,"-o",out/"program"])
         else:
-            run([tools/"aarch64-linux-android26-clang",ROOT/"tests/mobile/main.c","-L"+str(out),"-lMain-64","-o",out/"program"])
+            run([tools/"aarch64-linux-android26-clang",ROOT/"tests/mobile/main.c","-L"+str(out),"-l"+main_class+"-64","-o",out/"program"])
     if ios:
         output=run(["xcrun","simctl","spawn",args.device,out/"program"],capture=True,timeout=120)
     else:
@@ -77,13 +81,14 @@ def main():
         remote="/data/local/tmp/hxn-text-"+nonce
         run([*adb,"shell","mkdir",remote],timeout=30)
         try:
-            files=[out/"program"]+([out/"libMain-64.so"] if args.runtime=="cpp" else [])
+            files=[out/"program"]+([out/("lib"+main_class+"-64.so")] if args.runtime=="cpp" else [])
             run([*adb,"push",*files,remote+"/"],timeout=60)
             output=run([*adb,"shell",f"cd {remote} && LD_LIBRARY_PATH=. ./program"],capture=True,timeout=120)
             if args.runtime=="cpp":output += run([*adb,"logcat","-d","-v","raw","-s","trace"],capture=True,timeout=30)
         finally:run([*adb,"shell","rm","-rf",remote],timeout=30)
     assert "hxn-text-test:"+nonce in output,output[-3000:]
-    assert "PASS: owned fonts" in output,output[-3000:]
-    print(f"PASS: {args.platform} {args.runtime} fonts, shaping, masks and atlas updates")
+    marker="PASS: annotated font assets" if args.assets_source else "PASS: owned fonts"
+    assert marker in output,output[-3000:]
+    print(f"PASS: {args.platform} {args.runtime} " + ("annotated font assets" if args.assets_source else "fonts, shaping, masks and atlas updates"))
 
 if __name__=="__main__":main()

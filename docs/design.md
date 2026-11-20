@@ -25,6 +25,31 @@ Malformed fonts and invalid options throw `TextException`, whose `error` holds
 a code and message. A system lookup can fail when the requested font is absent.
 Do not use system fallback as proof of bundled-font coverage on another platform.
 
+## Asset integration
+
+Use `-lib hxn-text` and `-lib hxn-assets` together. `hxn.text.FontAssets.decode`
+is the Bytes-to-Font decoder for a typed `@:dynamicAsset` field with
+`@:assetDecode(hxn.text.FontAssets.decode)`. The native font handle is created
+at runtime. Known source bytes still support generated catalogs, media types,
+dependencies and opt-in content IDs. Read the field after the generated
+`load(loader)` future succeeds.
+
+`FontAssets.load(loader, address, options)` uses the existing AssetLoader for
+transport, dependencies, content verification and byte caching. It snapshots
+collection/weight options before delivery and creates a new owned font per call.
+Source, digest and decoder failures reject the future. Decoder errors retain
+`TextException`. No separate font cache hides asset revisions or style selections.
+It accepts any AssetSource supported by the loader, including local and HTTP(S)
+providers, and uses no runtime-specific native I/O of its own.
+
+An embedded Bytes field can call `FontAssets.decode(bytes, options)` directly.
+Decoding copies bytes according to the Font contract. Evicting loader bytes does
+not close the decoded font. Generated `unload()` clears field bindings but does
+not close native Font handles; close them explicitly before clearing the fields.
+An engine retains prepared fonts until its own release or `clearFonts()`.
+See the [font asset example](../examples/assets/README.md) for resource lifetime
+and asynchronous bundle loading on native, browser and mobile hosts.
+
 ## Shaping and preparation
 
 `Font.shape(text, size)` shapes one segment with Blinc's inferred segment

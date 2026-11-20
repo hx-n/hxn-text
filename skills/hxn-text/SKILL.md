@@ -10,6 +10,18 @@ or another application loader to `new hxn.text.Font(bytes, {})`. Packaged native
 adapters require no Rust compiler in the application. Font fetching, CSS,
 UI/container layout, scene composition and drawing stay with the consumer.
 
+For font assets add `-lib hxn-assets`. Declare a typed Font field with
+`@:asset`, `@:dynamicAsset` and `@:assetDecode(hxn.text.FontAssets.decode)`.
+Known source bytes can opt in to `@:contentAddressed`; native font handles are
+created at runtime. Read the field after the generated `load(loader)` succeeds.
+`FontAssets.load(loader, address, options)` returns a new caller-owned font and
+snapshots face/weight selection before asynchronous delivery. Keep transport,
+content verification and byte caching in AssetLoader. Generated `unload()` does
+not close native fonts: close them before clearing their fields. Loader cache
+eviction does not invalidate a decoded font. The
+[font asset example](https://github.com/hx-n/hxn-text/tree/main/examples/assets)
+uses the normal installed packages with FileSource and asynchronous loading.
+
 The engine is shared `blinc_text`, not a copy of blinc_abi. Shared shaping and
 rasterization fixes and their regressions belong in Blinc. HarfRust is the
 intended shaping backend; keep its collection index and variable axes consistent

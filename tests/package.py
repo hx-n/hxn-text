@@ -12,7 +12,10 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cli",default="hxn")
     parser.add_argument("--ash",default="ash")
+    parser.add_argument("--assets-package",type=Path,help="Prepared hxn-assets SDK for the font asset example")
+    parser.add_argument("--file-package",type=Path,help="Prepared hxn-file SDK for the font asset example")
     args=parser.parse_args()
+    if bool(args.assets_package) != bool(args.file_package):parser.error("provide both --assets-package and --file-package")
     work=ROOT/"target/installed-consumer";work.mkdir(parents=True,exist_ok=True)
     package=work/"package"
     env=os.environ.copy()
@@ -31,8 +34,10 @@ def main():
         if not (ROOT/folder).is_dir():raise RuntimeError(f"missing redistribution directory: {folder}")
         shutil.copytree(ROOT/folder,package/folder,dirs_exist_ok=True)
     assert (package/"sources/hxn/text/NativeNames.hx").is_file()
+    assert (package/"sources/hxn/text/FontAssets.hx").is_file()
     assert "NativeNames.register" in (package/"extraParams.hxml").read_text()
     hxcpp=run(["haxelib","libpath","hxcpp"],capture=True).strip()
+    codec=run(["haxelib","libpath","format"],capture=True).strip() if args.assets_package else None
     env["HAXELIB_PATH"]=str(work/"haxelib")
     Path(env["HAXELIB_PATH"]).mkdir(exist_ok=True)
     run(["haxelib","install","hxn","0.3.10","--quiet","--always"])
@@ -50,6 +55,22 @@ def main():
     executable=out/"cpp"/("Main.exe" if os.name=="nt" else "Main")
     output=run([executable],cwd=out,consumer=True,capture=True)
     assert marker in output,output
+    if args.assets_package:
+        run(["haxelib","dev","hxn-assets",args.assets_package.resolve()])
+        run(["haxelib","dev","hxn-file",args.file_package.resolve()])
+        run(["haxelib","dev","format",codec])
+        fonts=work/"fonts";fonts.mkdir(exist_ok=True)
+        asset_args=["haxe","-lib","hxn-text","-lib","hxn-assets","-cp",ROOT/"examples/assets","-main","Main","-D","hxn_assets_dir="+str(ROOT/"examples/assets/assets")]
+        run([*asset_args,"-hl",fonts/"main.hl"],consumer=True)
+        assert (fonts/"assets/NotoSans-OFL.txt").read_bytes() == (ROOT/"examples/assets/assets/NotoSans-OFL.txt").read_bytes()
+        for options in [[],["--mode","jit"],["--mode","interp"]]:
+            output=run([args.ash,*options,fonts/"main.hl"],cwd=fonts,consumer=True,capture=True)
+            assert "PASS: content-addressed font asset" in output,output
+        run([*asset_args,"-cpp",fonts/"cpp"],consumer=True)
+        executable=fonts/"cpp"/("Main.exe" if os.name=="nt" else "Main")
+        output=run([executable],cwd=executable.parent,consumer=True,capture=True)
+        assert "PASS: content-addressed font asset" in output,output
+        print("PASS: installed font asset example on Ash hybrid/JIT/interpreter and hxcpp with Rust tooling disabled")
     print("PASS: installed hxn-text on Ash hybrid/JIT/interpreter and hxcpp with Rust tooling disabled")
 
 if __name__=="__main__":main()

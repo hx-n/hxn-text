@@ -1,0 +1,7 @@
+-lib hxn-text
+-lib hxn-assets
+-cp .
+-D hxn_assets_dir=assets
+-D HXCPP_LINK_MEMORY_GROWTH
+-main Main
+-hl out/main.hl

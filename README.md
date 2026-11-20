@@ -40,6 +40,22 @@ hxn check cpp cppia
 hxn package hl cpp --release --out target/package
 ```
 
+Font assets use `-lib hxn-assets` with `FontAssets.decode` as the runtime decoder:
+
+```haxe
+@:build(hxn.assets.Assets.build())
+class GameAssets {
+    @:asset("fonts/ui.ttf") @:contentAddressed
+    @:dynamicAsset @:assetDecode(hxn.text.FontAssets.decode)
+    public static var Ui:hxn.text.Font;
+}
+```
+
+Read `GameAssets.Ui` after `GameAssets.load(loader)` completes. For direct
+address-based loading, `FontAssets.load(loader, address, options)` returns a
+future with a new owned font. The [runnable font asset example](examples/assets)
+loads a bundled font, prepares text and releases its resources.
+
 Read [the API contract](docs/design.md), [contributor conventions](docs/conventions.md)
 and [test coverage](tests/README.md). Fonts and native dependencies retain their
 own licenses. CSS, UI/container layout, scene composition and rendering belong
