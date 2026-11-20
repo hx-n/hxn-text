@@ -1,5 +1,7 @@
 # hxn-text
 
+[![Prebuilt Haxe SDK](https://github.com/hx-n/hxn-text/actions/workflows/ci.yml/badge.svg)](https://github.com/hx-n/hxn-text/actions/workflows/ci.yml)
+
 Fonts, text shaping, glyph rasterization and atlas data for Haxe, using the
 shared `blinc_text` engine. Applications own drawing and GPU textures.
 
@@ -31,8 +33,8 @@ updates. Atlas coordinates are pixels. Normalize them against the current
 texture dimensions when drawing. Compare `generation` before reusing geometry
 after clearing an engine.
 
-Install a prebuilt release or CI ZIP with `haxelib install hxn-text-0.1.0.zip`,
-then compile with `-lib hxn-text`. The ZIP contains the Haxe bindings and native
+Install with `haxelib install hxn-text 0.1.0`, then compile with `-lib hxn-text`.
+Release and CI ZIPs also support `haxelib install hxn-text-0.1.0.zip`. The ZIP contains the Haxe bindings and native
 libraries for desktop, mobile, Ash wasm and Emscripten. Applications need Haxe
 and their selected runtime, without Rust or a source checkout.
 
