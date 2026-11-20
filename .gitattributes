@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.ttf binary
+*.woff2 binary
+third-party/licenses/** -text -whitespace
+tests/fixtures/*-OFL.txt -text -whitespace

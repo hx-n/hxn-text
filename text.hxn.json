@@ -1,0 +1,280 @@
+{
+  "hxn": 1,
+  "library": "text",
+  "package": "hxn.text",
+  "enums": [
+    {
+      "name": "TextErrorCode",
+      "variants": [{ "name": "InvalidFont", "value": 0 }, { "name": "InvalidOptions", "value": 1 }, { "name": "FontUnavailable", "value": 2 }, { "name": "AtlasFull", "value": 3 }, { "name": "LimitExceeded", "value": 4 }]
+    },
+    {
+      "name": "AtlasKind",
+      "variants": [{ "name": "Coverage", "value": 0 }, { "name": "Color", "value": 1 }]
+    },
+    {
+      "name": "TextAlignment",
+      "variants": [{ "name": "Left", "value": 0 }, { "name": "Center", "value": 1 }, { "name": "Right", "value": 2 }]
+    },
+    {
+      "name": "TextWrap",
+      "variants": [{ "name": "None", "value": 0 }, { "name": "Word", "value": 1 }, { "name": "Character", "value": 2 }]
+    }
+  ],
+  "records": [
+    {
+      "name": "TextError",
+      "fields": [
+        { "name": "code", "type": "TextErrorCode" },
+        { "name": "message", "type": "str" }
+      ]
+    },
+    {
+      "name": "FontOptions",
+      "fields": [
+        { "name": "face_index", "type": "u32", "default": true },
+        { "name": "weight", "type": "u16", "default": "FontOptions::regular" }
+      ]
+    },
+    {
+      "name": "FontMetrics",
+      "fields": [
+        { "name": "units_per_em", "type": "u32" },
+        { "name": "ascent", "type": "f32" },
+        { "name": "descent", "type": "f32" },
+        { "name": "line_gap", "type": "f32" },
+        { "name": "cap_height", "type": "f32" },
+        { "name": "x_height", "type": "f32" }
+      ]
+    },
+    {
+      "name": "ShapedGlyph",
+      "fields": [
+        { "name": "glyph_id", "type": "u32" },
+        { "name": "cluster", "type": "u32" },
+        { "name": "x_advance", "type": "f32" },
+        { "name": "y_advance", "type": "f32" },
+        { "name": "x_offset", "type": "f32" },
+        { "name": "y_offset", "type": "f32" }
+      ]
+    },
+    {
+      "name": "GlyphRun",
+      "fields": [
+        { "name": "glyphs", "type": "list<ShapedGlyph>" },
+        { "name": "width", "type": "f32" },
+        { "name": "size", "type": "f32" }
+      ]
+    },
+    {
+      "name": "GlyphBitmap",
+      "fields": [
+        { "name": "kind", "type": "AtlasKind" },
+        { "name": "width", "type": "u32" },
+        { "name": "height", "type": "u32" },
+        { "name": "stride", "type": "u32" },
+        { "name": "bearing_x", "type": "i32" },
+        { "name": "bearing_y", "type": "i32" },
+        { "name": "pixels", "type": "bytes" }
+      ]
+    },
+    {
+      "name": "TextOptions",
+      "fields": [
+        { "name": "size", "type": "f32", "default": "TextOptions::default_size" },
+        { "name": "max_width", "type": "f32", "default": true },
+        { "name": "line_height", "type": "f32", "default": "TextOptions::default_line_height" },
+        { "name": "letter_spacing", "type": "f32", "default": true },
+        { "name": "alignment", "type": "TextAlignment", "default": "TextOptions::default_alignment" },
+        { "name": "wrap", "type": "TextWrap", "default": "TextOptions::default_wrap" },
+        { "name": "scale", "type": "f32", "default": "TextOptions::default_scale" },
+        { "name": "subpixel", "type": "bool", "default": true }
+      ]
+    },
+    {
+      "name": "TextGlyph",
+      "fields": [
+        { "name": "x", "type": "f32" },
+        { "name": "y", "type": "f32" },
+        { "name": "width", "type": "f32" },
+        { "name": "height", "type": "f32" },
+        { "name": "atlas_x", "type": "u32" },
+        { "name": "atlas_y", "type": "u32" },
+        { "name": "atlas_width", "type": "u32" },
+        { "name": "atlas_height", "type": "u32" },
+        { "name": "kind", "type": "AtlasKind" }
+      ]
+    },
+    {
+      "name": "PreparedText",
+      "fields": [
+        { "name": "glyphs", "type": "list<TextGlyph>" },
+        { "name": "width", "type": "f32" },
+        { "name": "height", "type": "f32" },
+        { "name": "ascent", "type": "f32" },
+        { "name": "descent", "type": "f32" },
+        { "name": "generation", "type": "u32" }
+      ]
+    },
+    {
+      "name": "AtlasUpdate",
+      "fields": [
+        { "name": "kind", "type": "AtlasKind" },
+        { "name": "revision", "type": "u32" },
+        { "name": "generation", "type": "u32" },
+        { "name": "width", "type": "u32" },
+        { "name": "height", "type": "u32" },
+        { "name": "x", "type": "u32" },
+        { "name": "y", "type": "u32" },
+        { "name": "patch_width", "type": "u32" },
+        { "name": "patch_height", "type": "u32" },
+        { "name": "stride", "type": "u32" },
+        { "name": "full", "type": "bool" },
+        { "name": "pixels", "type": "bytes" }
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "Font",
+      "docs": "Immutable font bytes and selected face. Engines retain fonts they prepare.",
+      "shared": true,
+      "weighed": true,
+      "methods": [
+        {
+          "name": "new",
+          "docs": "Copies and validates TTF, OpenType, collection or WOFF2 bytes.",
+          "kind": "constructor",
+          "params": [{ "name": "bytes", "type": "bytes" }, { "name": "options", "type": "FontOptions" }],
+          "returns": "Font",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        },
+        {
+          "name": "system",
+          "docs": "Platform font lookup. Browser applications supply their own font bytes.",
+          "kind": "static",
+          "params": [{ "name": "family", "type": "str" }, { "name": "weight", "type": "u16" }, { "name": "italic", "type": "bool" }],
+          "returns": "Font",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": true
+        },
+        {
+          "name": "family",
+          "kind": "method",
+          "params": [],
+          "returns": "str",
+          "fallible": false,
+          "blocking": false
+        },
+        {
+          "name": "face_index",
+          "kind": "method",
+          "params": [],
+          "returns": "u32",
+          "fallible": false,
+          "blocking": false
+        },
+        {
+          "name": "metrics",
+          "kind": "method",
+          "params": [{ "name": "size", "type": "f32" }],
+          "returns": "FontMetrics",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        },
+        {
+          "name": "supports",
+          "kind": "method",
+          "params": [{ "name": "text", "type": "str" }],
+          "returns": "bool",
+          "fallible": false,
+          "blocking": false
+        },
+        {
+          "name": "shape",
+          "docs": "Shapes one segment. Clusters are byte offsets, not Haxe string indexes.",
+          "kind": "method",
+          "params": [{ "name": "text", "type": "str" }, { "name": "size", "type": "f32" }],
+          "returns": "GlyphRun",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        },
+        {
+          "name": "rasterize",
+          "kind": "method",
+          "params": [{ "name": "glyph_id", "type": "u32" }, { "name": "size", "type": "f32" }, { "name": "kind", "type": "AtlasKind" }],
+          "returns": "GlyphBitmap",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        }
+      ]
+    },
+    {
+      "name": "TextEngine",
+      "docs": "A CPU text engine with independent glyph atlases. It never draws or owns a GPU resource.",
+      "weighed": true,
+      "methods": [
+        {
+          "name": "new",
+          "kind": "constructor",
+          "params": [],
+          "returns": "TextEngine",
+          "fallible": false,
+          "blocking": false
+        },
+        {
+          "name": "prepare",
+          "kind": "mutating",
+          "params": [{ "name": "font", "type": "Font" }, { "name": "text", "type": "str" }, { "name": "options", "type": "TextOptions" }],
+          "returns": "PreparedText",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        },
+        {
+          "name": "atlas",
+          "docs": "Pass each texture consumer's last revision, or zero for a complete snapshot.",
+          "kind": "mutating",
+          "params": [{ "name": "kind", "type": "AtlasKind" }, { "name": "seen_revision", "type": "u32" }],
+          "returns": "AtlasUpdate",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        },
+        {
+          "name": "generation",
+          "kind": "method",
+          "params": [],
+          "returns": "u32",
+          "fallible": false,
+          "blocking": false
+        },
+        {
+          "name": "clear",
+          "docs": "Invalidates prepared atlas coordinates while retaining registered fonts.",
+          "kind": "mutating",
+          "params": [],
+          "returns": "void",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        },
+        {
+          "name": "clear_fonts",
+          "docs": "Releases retained fonts and caches, and invalidates prepared atlas coordinates.",
+          "kind": "mutating",
+          "params": [],
+          "returns": "void",
+          "throws": "TextError",
+          "fallible": true,
+          "blocking": false
+        }
+      ]
+    }
+  ]
+}

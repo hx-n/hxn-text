@@ -1,0 +1,27 @@
+[package]
+name = "hxn-text"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/hx-n/hxn-text"
+description = "Fonts, text shaping, glyph rasterization and atlas data for Haxe"
+
+[workspace]
+resolver = "3"
+
+[lib]
+name = "hxn_text"
+
+[dependencies]
+hxn = { git = "https://github.com/hx-n/hxn.git", tag = "v0.3.10" }
+blinc_text = { git = "https://github.com/project-blinc/Blinc.git", rev = "c7222bb5c598b62997c744912807b7b1a4fc4943" }
+woff2-patched = "0.4"
+
+[package.metadata.hxn]
+library = "text"
+haxelib = "hxn-text"
+contributors = ["darmie"]
+releasenote = "Font ownership, HarfRust shaping, glyph masks and revisioned atlas data through the shared Blinc text engine."
+haxe = "examples/check"
+init = ["hxn.text.NativeNames.register()"]
+haxe-flags = ["-resource", "tests/fixtures/NotoSans-Regular.ttf@latin", "-resource", "tests/fixtures/arabic.ttf@arabic", "-resource", "tests/fixtures/devanagari.ttf@devanagari"]
