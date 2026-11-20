@@ -1,0 +1,2 @@
+--macro hxn.Bind.lib("text")
+--macro hxn.text.NativeNames.register()

@@ -16,6 +16,12 @@ Do not retain Haxe callbacks, start native threads in a threadless build or
 unwind across the boundary. Keep drawing, CSS, scene state and GPU resources
 outside this library. Native allocation ownership must remain explicit.
 
+Keep the generated installable package layout checked in: binding/, include/,
+haxelib.json, extraParams.hxml and text.hxn.json. Ignore native/ in Git; CI builds
+and ships its platform binaries. Haxe consumers must not build Rust. Regenerate
+with hxn package hl cpp --release --out . and check for generated-file drift.
+Run the installed-ZIP consumer gates with Rust disabled before release.
+
 Run Rust tests, formatting and strict Clippy. Format Haxe before commits.
 Run the public Haxe fixture on HashLink, Ash hybrid/JIT/interpreter, hxcpp,
 CPPIA, Ash wasm and Emscripten, threaded and threadless where supported.

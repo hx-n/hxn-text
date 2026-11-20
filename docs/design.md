@@ -95,3 +95,18 @@ rebuild its batches explicitly.
 Native font bytes and atlas storage participate in hxn's allocation accounting.
 The shared logger uses target `hxn.text`. The application owns its sink and
 severity threshold; the library leaves that configuration unchanged.
+
+## Distribution
+
+The package root contains generated Haxe bindings, C headers, Haxelib metadata
+and the handwritten Haxe helpers. Cargo metadata supplies the generated package
+metadata. Native libraries are CI outputs, selected from `native/<triple>` by
+`hxn.Bind`. Application compilation does not generate bindings or invoke Cargo.
+
+The SDK workflow builds Linux x86-64/ARM64, macOS ARM64 and Intel hxcpp, Windows
+x86-64, iOS device/simulator, Android ARM64, Ash wasm with and without threads,
+and Emscripten with and without threads. Assembly rejects missing native files
+or platform parts whose common bindings differ. It excludes Rust implementation
+sources and test hosts from the Haxelib and retains applicable license material.
+Installed-ZIP jobs compile the public Haxe fixtures and asset example with Rust
+disabled. Mobile application hosts link the supplied static libraries.

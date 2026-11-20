@@ -1,0 +1,11 @@
+{
+  "name": "hxn-text",
+  "version": "0.1.0",
+  "description": "Fonts, text shaping, glyph rasterization and atlas data for Haxe",
+  "url": "https://github.com/hx-n/hxn-text",
+  "license": "Apache",
+  "tags": ["hxcpp", "hashlink", "native", "cross", "wasm"],
+  "contributors": ["darmie"],
+  "releasenote": "Font ownership, HarfRust shaping, glyph masks and revisioned atlas data through the shared Blinc text engine.",
+  "dependencies": { "hxn": "0.3.10" }
+}

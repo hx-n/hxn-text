@@ -33,6 +33,25 @@ Test-only hosts, fixtures and runners belong under tests, outside published
 application tooling. Validate direct `haxe -lib hxn-text` consumers as well as
 source CLI checks. Match the hxn CLI and binding versions.
 
+Keep the installable Haxelib layout in the repository: generated `binding/`,
+`include/`, `haxelib.json`, `extraParams.hxml` and the API manifest. Regenerate it
+with `hxn package hl cpp --release --out .`; do not edit generated files.
+Ignore `native/` in Git and ship its CI-built binaries in the release ZIP.
+A package is incomplete when it requires a Haxe consumer to build Rust.
+
+The SDK workflow checks generated-file drift, produces desktop/mobile/wasm
+artifacts and compares their common API files before assembly. Release archives
+include notices, the skill and the runnable asset example with its font license.
+Installed-ZIP jobs run with Rust disabled and with no producer source tree.
+A tag publishes only after the installed native/browser checks succeed.
+Build wasm parts on the shared pinned Linux producer used by the file/assets
+SDKs. Rebuilt standard-library identities can differ across producer hosts;
+matching only the compiler version does not establish archive compatibility.
+Verify the composed prebuilt ZIPs instead of asking applications to rebuild Rust.
+For a local SDK check, `hxn package hl cpp --release --out .` builds the current
+host part; `tests/release/run.py native --package .` checks that root with Rust
+disabled. Source contributors need Rust; application consumers use prebuilt ZIPs.
+
 For dependency changes, refresh third-party notices from the locked metadata.
 Include the HashLink support dependency's notices with generated native
 bindings. Keep unchanged upstream license bytes and per-font attribution.

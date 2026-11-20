@@ -5,6 +5,7 @@ edition = "2024"
 license = "Apache-2.0"
 repository = "https://github.com/hx-n/hxn-text"
 description = "Fonts, text shaping, glyph rasterization and atlas data for Haxe"
+keywords = ["hxcpp", "hashlink", "native", "cross", "wasm"]
 
 [workspace]
 resolver = "3"

@@ -6,8 +6,16 @@ description: Use or change hxn-text fonts, HarfRust-shaped glyph runs, glyph ras
 # hxn-text
 
 Use `-lib hxn-text` and pass bytes from hxn-file, an annotated hxn-assets field
-or another application loader to `new hxn.text.Font(bytes, {})`. Packaged native
-adapters require no Rust compiler in the application. Font fetching, CSS,
+or another application loader to `new hxn.text.Font(bytes, {})`. The prebuilt
+Haxelib contains generated bindings, headers and native binaries.
+Haxe applications do not build Rust. Keep binding/, include/, haxelib.json and
+extraParams.hxml in the package root and refresh them with hxn package when
+changing the Rust API. CI checks generated drift and ships native/<triple>
+inside release ZIPs; native binaries remain ignored in the source repository.
+Installed-ZIP checks disable Rust and use no producer source tree.
+Keep wasm producers on the common pinned Linux/toolchain setup used by the
+other hxn SDKs, and test composed installed libraries before release.
+Font fetching, CSS,
 UI/container layout, scene composition and drawing stay with the consumer.
 
 For font assets add `-lib hxn-assets`. Declare a typed Font field with
